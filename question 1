@@ -1,0 +1,25 @@
+app.get('/numbers', async (req, res) => {
+  const { url } = req.query;
+
+  if (!url) {
+    return res.status(400).json({ error: 'URLs are required in query parameters.' });
+  }
+
+  const urls = Array.isArray(url) ? url : [url];
+
+  try {
+    const results = await Promise.all(urls.map(fetchData));
+    res.json(results);
+  } catch (error) {
+    res.status(500).json({ error: 'An error occurred while fetching data.' });
+  }
+});
+
+async function fetchData(url) {
+  try {
+    const response = await axios.get(url);
+    return response.data;
+  } catch (error) {
+    return { error: `Failed to fetch data from ${url}.` };
+  }
+}
